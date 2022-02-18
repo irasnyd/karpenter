@@ -17,6 +17,7 @@ package aws
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -65,7 +66,13 @@ func getFilters(constraints *v1alpha1.AWS) []*ec2.Filter {
 	filters := []*ec2.Filter{}
 	// Filter by subnet
 	for key, value := range constraints.SubnetSelector {
-		if value == "*" {
+		if key == "subnet-arn" || key == "subnet-id" {
+			filterValues := splitCommaSeparatedString(value)
+			filters = append(filters, &ec2.Filter{
+				Name:   aws.String(key),
+				Values: filterValues,
+			})
+		} else if value == "*" {
 			filters = append(filters, &ec2.Filter{
 				Name:   aws.String("tag-key"),
 				Values: []*string{aws.String(key)},
@@ -86,4 +93,15 @@ func prettySubnets(subnets []*ec2.Subnet) []string {
 		names = append(names, fmt.Sprintf("%s (%s)", aws.StringValue(subnet.SubnetId), aws.StringValue(subnet.AvailabilityZone)))
 	}
 	return names
+}
+
+func splitCommaSeparatedString(value string) []*string {
+	var result []*string
+
+	for _, value := range strings.Split(value, ",") {
+		s := aws.String(strings.TrimSpace(value))
+		result = append(result, s)
+	}
+
+	return result
 }
