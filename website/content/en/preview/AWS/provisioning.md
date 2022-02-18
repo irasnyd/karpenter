@@ -43,6 +43,8 @@ Subnets may be specified by any AWS tag, including `Name`. Selecting tag values 
 
 When launching nodes, Karpenter automatically chooses a subnet that matches the desired zone. If multiple subnets exist for a zone, one is chosen randomly.
 
+To provide a workaround for users who cannot use AWS tags, subnets can be explicitly specified by either ARN or ID. This behavior can be triggered by using the key `subnet-arn` or `subnet-id` and specifying the values as a comma-separated string.
+
 **Examples**
 
 Select all subnets with a specified tag:
@@ -68,6 +70,17 @@ Select subnets using wildcards:
   subnetSelector:
     Name: *public*
 
+```
+
+Specify subnets explicitly by ARN:
+```yaml
+  subnetSelector:
+    subnet-arn: "arn:aws:ec2:us-west-2:012345678901:subnet/subnet-09fa4a0a8f233a921,arn:aws:ec2:us-west-2:012345678901:subnet/subnet-0471ca205b8a129ae"
+```
+
+Specify subnets explicitly by ID:
+```yaml
+    subnet-id: "subnet-09fa4a0a8f233a921,subnet-0471ca205b8a129ae"
 ```
 
 ### SecurityGroupSelector
