@@ -50,6 +50,17 @@ func (in *AWS) DeepCopyInto(out *AWS) {
 			(*out)[key] = val
 		}
 	}
+	if in.SubnetARNs != nil {
+		in, out := &in.SubnetARNs, &out.SubnetARNs
+		*out = make([]*string, len(*in))
+		for i := range *in {
+			if (*in)[i] != nil {
+				in, out := &(*in)[i], &(*out)[i]
+				*out = new(string)
+				**out = **in
+			}
+		}
+	}
 	if in.SecurityGroupSelector != nil {
 		in, out := &in.SecurityGroupSelector, &out.SecurityGroupSelector
 		*out = make(map[string]string, len(*in))

@@ -25,6 +25,7 @@ import (
 const (
 	launchTemplatePath          = "launchTemplate"
 	securityGroupSelectorPath   = "securityGroupSelector"
+	fieldPathSubnetARNsPath     = "subnetARNs"
 	fieldPathSubnetSelectorPath = "subnetSelector"
 	amiFamilyPath               = "amiFamily"
 	metadataOptionsPath         = "metadataOptions"
@@ -66,12 +67,20 @@ func (a *AWS) validateLaunchTemplate() (errs *apis.FieldError) {
 }
 
 func (a *AWS) validateSubnets() (errs *apis.FieldError) {
-	if a.SubnetSelector == nil {
-		errs = errs.Also(apis.ErrMissingField(fieldPathSubnetSelectorPath))
+	if a.SubnetSelector == nil && a.SubnetARNs == nil {
+		errs = errs.Also(apis.ErrMissingField(fieldPathSubnetSelectorPath, fieldPathSubnetARNsPath))
+	}
+	if a.SubnetSelector != nil && a.SubnetARNs != nil {
+		errs = errs.Also(apis.ErrMultipleOneOf(fieldPathSubnetSelectorPath, fieldPathSubnetARNsPath))
 	}
 	for key, value := range a.SubnetSelector {
 		if key == "" || value == "" {
 			errs = errs.Also(apis.ErrInvalidValue("\"\"", fmt.Sprintf("%s['%s']", fieldPathSubnetSelectorPath, key)))
+		}
+	}
+	for idx, value := range a.SubnetARNs {
+		if *value == "" {
+			errs = errs.Also(apis.ErrInvalidValue("\"\"", fmt.Sprintf("%s['%d']", fieldPathSubnetARNsPath, idx)))
 		}
 	}
 	return errs

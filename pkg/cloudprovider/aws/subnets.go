@@ -53,8 +53,15 @@ func (s *SubnetProvider) Get(ctx context.Context, constraints *v1alpha1.AWS) ([]
 	if err != nil {
 		return nil, fmt.Errorf("describing subnets %s, %w", pretty.Concise(filters), err)
 	}
-	if len(output.Subnets) == 0 {
-		return nil, fmt.Errorf("no subnets matched selector %v", constraints.SubnetSelector)
+	if constraints.SubnetSelector != nil {
+		if len(output.Subnets) == 0 {
+			return nil, fmt.Errorf("no subnets matched selector %v", constraints.SubnetSelector)
+		}
+	}
+	if constraints.SubnetARNs != nil {
+		if len(constraints.SubnetARNs) != len(output.Subnets) {
+			return nil, fmt.Errorf("unable to find all requested subnets by arn %v", constraints.SubnetARNs)
+		}
 	}
 	s.cache.SetDefault(fmt.Sprint(hash), output.Subnets)
 	logging.FromContext(ctx).Debugf("Discovered subnets: %s", prettySubnets(output.Subnets))
@@ -76,6 +83,13 @@ func getFilters(constraints *v1alpha1.AWS) []*ec2.Filter {
 				Values: []*string{aws.String(value)},
 			})
 		}
+	}
+	// Filter by ARN
+	if len(constraints.SubnetARNs) > 0 {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("subnet-arn"),
+			Values: constraints.SubnetARNs,
+		})
 	}
 	return filters
 }

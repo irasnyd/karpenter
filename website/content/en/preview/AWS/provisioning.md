@@ -70,6 +70,21 @@ Select subnets using wildcards:
 
 ```
 
+### SubnetARNs
+
+As an alternative for environments where subnets cannot be located by AWS tag, the
+subnets can be specified explicity by ARN. This option is mutually exclusive with
+the [SubnetSelector](#subnetselector) option.
+
+**Example**
+
+Use the following subnets, specified explicity by ARN:
+```
+  subnetARNs:
+  - "arn:aws:ec2:us-west-2:012345678901:subnet/subnet-0fb54929c62140415"
+  - "arn:aws:ec2:us-west-2:012345678901:subnet/subnet-029fac8141b5c62f3"
+```
+
 ### SecurityGroupSelector
 
 The security group of an instance is comparable to a set of firewall rules.

@@ -55,6 +55,9 @@ type AWS struct {
 	// SubnetSelector discovers subnets by tags. A value of "" is a wildcard.
 	// +optional
 	SubnetSelector map[string]string `json:"subnetSelector,omitempty"`
+	// SubnetARNs configures subnets explicitly by ARN
+	// +optional
+	SubnetARNs []*string `json:"subnetARNs,omitempty"`
 	// SecurityGroups specify the names of the security groups.
 	// +optional
 	SecurityGroupSelector map[string]string `json:"securityGroupSelector,omitempty"`
